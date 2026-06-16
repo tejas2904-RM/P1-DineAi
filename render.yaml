@@ -45,10 +45,6 @@ services:
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/v1/health
     autoDeploy: true
-    disk:
-      name: phase8-data
-      mountPath: /opt/render/project/src/Phase8/backend/data
-      sizeGB: 1
     envVars:
       - key: PYTHON_VERSION
         value: "3.11.9"
