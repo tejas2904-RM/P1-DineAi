@@ -1,0 +1,65 @@
+# Render Blueprint — RRS Phase 9 (backend deployment)
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Deploy: push this file to your repo root as render.yaml, or create a Blueprint
+# in the Render dashboard and point it at Phase9/render.yaml.
+#
+# Requires: full monorepo (Phase1–Phase8) so Phase7 can load dataset + LLM modules.
+
+services:
+  # -------------------------------------------------------------------------
+  # Phase 7 — Hardened recommendation API gateway
+  # -------------------------------------------------------------------------
+  - type: web
+    name: rrs-phase7
+    runtime: python
+    region: oregon
+    plan: free
+    rootDir: Phase7/backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /v1/health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: PHASE7_API_KEYS
+        sync: false
+      - key: CORS_ORIGINS
+        value: http://localhost:8082,http://localhost:3000
+
+  # -------------------------------------------------------------------------
+  # Phase 8 — Personalization API (profiles, history, favorites)
+  # -------------------------------------------------------------------------
+  - type: web
+    name: rrs-phase8
+    runtime: python
+    region: oregon
+    plan: free
+    rootDir: Phase8/backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    disk:
+      name: phase8-data
+      mountPath: /opt/render/project/src/Phase8/backend/data
+      sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: PHASE7_BASE
+        fromService:
+          type: web
+          name: rrs-phase7
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: PHASE8_DEFAULT_KEY
+        value: phase7-demo-key
+      - key: PHASE8_DATASET
+        value: /opt/render/project/src/Phase1/outputs/restaurants_clean.csv
+      - key: CORS_ORIGINS
+        value: http://localhost:8082,http://localhost:3000
