@@ -75,55 +75,39 @@ export function RecommendationCard({
   }
 
   return (
-    <article className="card overflow-hidden" aria-label={`Recommendation ${item.rank}: ${item.name}`}>
-      <div className="relative h-44 w-full">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={imageUrl}
-          alt=""
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
-        <button
-          onClick={toggleFavorite}
-          className="absolute top-3 right-3 flex items-center justify-center w-9 h-9 rounded-full transition-colors"
-          style={{
-            background: 'rgba(255,255,255,0.92)',
-            color: favorited ? 'var(--danger)' : 'var(--text-secondary)',
-          }}
-          aria-label={favorited ? 'Remove from favorites' : 'Add to favorites'}
-          aria-pressed={favorited}
-        >
-          <Heart className="w-4 h-4" fill={favorited ? 'currentColor' : 'none'} aria-hidden="true" />
-        </button>
-      </div>
+    <article
+      className="card card-hover overflow-hidden flex flex-col md:flex-row"
+      aria-label={`Recommendation ${item.rank}: ${item.name}`}
+    >
+      <div className="flex items-start gap-3 p-4 md:p-5 md:min-w-0 md:flex-1">
+        <span className="rank-badge" aria-hidden="true">{item.rank}</span>
 
-      <div className="p-4 space-y-3">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="text-lg font-bold leading-tight">{item.name}</h3>
-          <span className="rating-badge" aria-label={`Rating ${item.rating}`}>
-            {item.rating.toFixed(1)} <Star className="w-3.5 h-3.5 fill-current" aria-hidden="true" />
-          </span>
+        <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden flex-shrink-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imageUrl}
+            alt=""
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
         </div>
 
-        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-          {toTitle(item.cuisine.split(',')[0] || item.cuisine)}
-          {location && <> · {toTitle(location)}</>}
-          {' · '}{budgetSymbols(budget)}
-        </p>
+        <div className="flex-1 min-w-0 space-y-1.5">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-base md:text-lg font-bold leading-tight">{item.name}</h3>
+            <span className="rating-badge" aria-label={`Rating ${item.rating}`}>
+              {item.rating.toFixed(1)} <Star className="w-3.5 h-3.5 fill-current" aria-hidden="true" />
+            </span>
+          </div>
 
-        <div className="ai-insight">
-          <p className="text-xs font-semibold mb-1 flex items-center gap-1" style={{ color: 'var(--accent)' }}>
-            <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
-            AI Insight
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+            {toTitle(item.cuisine.split(',')[0] || item.cuisine)}
+            {location && <> · {toTitle(location)}</>}
+            {' · '}{budgetSymbols(budget)}
+            {' · '}₹{item.estimatedCost}
           </p>
-          <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-            {item.reason}
-          </p>
-        </div>
 
-        <footer className="flex items-center justify-between pt-1">
-          <div className="flex gap-1">
+          <div className="flex gap-1 pt-1">
             <button
               onClick={() => vote('up')}
               className="p-2 rounded-lg transition-colors"
@@ -150,17 +134,37 @@ export function RecommendationCard({
             >
               <ThumbsDown className="w-4 h-4" aria-hidden="true" />
             </button>
+            <button
+              onClick={share}
+              className="p-2 rounded-lg transition-colors"
+              style={{ color: 'var(--text-muted)' }}
+              aria-label="Share recommendation"
+            >
+              <Share2 className="w-4 h-4" aria-hidden="true" />
+            </button>
+            <button
+              onClick={toggleFavorite}
+              className="p-2 rounded-lg transition-colors ml-auto"
+              style={{ color: favorited ? 'var(--accent)' : 'var(--text-muted)' }}
+              aria-label={favorited ? 'Remove from favorites' : 'Add to favorites'}
+              aria-pressed={favorited}
+            >
+              <Heart className="w-4 h-4" fill={favorited ? 'currentColor' : 'none'} aria-hidden="true" />
+            </button>
           </div>
-          <button
-            onClick={share}
-            className="inline-flex items-center gap-1 text-xs p-2 rounded-lg transition-colors"
-            style={{ color: 'var(--text-muted)' }}
-            aria-label="Share recommendation"
-          >
-            <Share2 className="w-3.5 h-3.5" aria-hidden="true" />
-            Share
-          </button>
-        </footer>
+        </div>
+      </div>
+
+      <div
+        className="ai-insight m-4 mt-0 md:m-5 md:ml-0 md:max-w-xs md:flex-shrink-0"
+      >
+        <p className="text-xs font-bold mb-1.5 flex items-center gap-1" style={{ color: 'var(--accent)' }}>
+          <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
+          Why recommended?
+        </p>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+          {item.reason}
+        </p>
       </div>
     </article>
   );

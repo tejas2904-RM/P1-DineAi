@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/lib/theme-provider';
-import { Navbar } from '@/components/Navbar';
+import { Sidebar } from '@/components/Sidebar';
+import { MobileHeader } from '@/components/MobileHeader';
 import { Footer } from '@/components/Footer';
 import { MobileTabBar } from '@/components/MobileTabBar';
 import { InstallPrompt } from '@/components/InstallPrompt';
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
   applicationName: 'DineWise AI',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'default',
+    statusBarStyle: 'black-translucent',
     title: 'DineWise AI',
   },
   icons: {
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#10b981',
+  themeColor: '#0a0a0a',
   width: 'device-width',
   initialScale: 1,
 };
@@ -35,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <link
           rel="stylesheet"
@@ -52,17 +53,17 @@ export default function RootLayout({
           >
             Skip to content
           </a>
-          <div className="min-h-screen flex flex-col">
-            <Navbar />
-            <main
-              id="main"
-              className="flex-1 w-full max-w-[480px] md:max-w-[1100px] mx-auto px-4 py-5 space-y-4"
-            >
-              <InstallPrompt />
-              {children}
-            </main>
-            <Footer />
-            <MobileTabBar />
+          <div className="app-shell">
+            <Sidebar />
+            <div className="main-content">
+              <MobileHeader />
+              <main id="main" className="main-inner space-y-4">
+                <InstallPrompt />
+                {children}
+              </main>
+              <Footer />
+              <MobileTabBar />
+            </div>
           </div>
         </ThemeProvider>
         <script

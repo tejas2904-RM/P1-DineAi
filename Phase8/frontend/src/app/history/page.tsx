@@ -21,7 +21,7 @@ export default function HistoryPage() {
       <header>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Clock className="w-6 h-6" style={{ color: 'var(--accent)' }} aria-hidden="true" />
-          Your search history
+          Search History
         </h1>
         <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
           Past recommendation requests, most recent first.

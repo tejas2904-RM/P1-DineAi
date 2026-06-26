@@ -15,7 +15,7 @@ import {
   type UserProfile,
 } from '@/lib/api';
 import { saveSearch } from '@/lib/user-store';
-import { List, Map as MapIcon, Sparkles, AlertTriangle, Loader2, Pencil, SlidersHorizontal } from 'lucide-react';
+import { List, Map as MapIcon, Sparkles, AlertTriangle, Pencil, RefreshCw } from 'lucide-react';
 
 const MapView = dynamic(
   () => import('@/components/MapView').then((m) => m.MapView),
@@ -84,18 +84,21 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-5">
-      {/* Hero greeting */}
-      <section className="hero-card p-5 md:p-6">
-        <div className="relative z-10 max-w-[85%]">
+    <div className="space-y-6">
+      <section className="hero-card p-6 md:p-8">
+        <div className="relative z-10 max-w-xl">
           <p
-            className="text-[11px] font-bold uppercase tracking-widest flex items-center gap-1.5 mb-2"
+            className="text-[11px] font-bold uppercase tracking-widest flex items-center gap-1.5 mb-3"
             style={{ color: 'var(--accent)' }}
           >
             <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
             AI Powered Dining
           </p>
-          <h1 className="text-2xl md:text-3xl font-bold leading-tight">
+          <h1 className="text-3xl md:text-4xl font-extrabold leading-tight tracking-tight">
+            Find your perfect restaurant{' '}
+            <span className="gradient-text">with AI</span>
+          </h1>
+          <p className="mt-3 text-sm md:text-base leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
             {greeting},{' '}
             {editingName ? (
               <span className="inline-flex items-center gap-2 flex-wrap">
@@ -119,32 +122,26 @@ export default function DashboardPage() {
             ) : (
               <button
                 onClick={() => setEditingName(true)}
-                className="inline-flex items-center gap-1 hover:underline"
+                className="inline-flex items-center gap-1 hover:underline font-medium"
+                style={{ color: 'var(--text-primary)' }}
                 title="Edit your name"
                 aria-label="Edit your name"
               >
                 {profile?.name || 'Guest'}
-                <Pencil className="w-4 h-4 inline" style={{ color: 'var(--text-muted)' }} aria-hidden="true" />
+                <Pencil className="w-3.5 h-3.5 inline" style={{ color: 'var(--text-muted)' }} aria-hidden="true" />
               </button>
             )}
-          </h1>
-          <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-            Find tailored dining recommendations powered by AI. Tell us what you crave and we&apos;ll handpick the best spots.
+            . Tell us what you crave and we&apos;ll handpick the best spots.
           </p>
         </div>
-        {/* Decorative shapes */}
-        <div className="absolute right-0 top-0 bottom-0 w-1/3 pointer-events-none overflow-hidden" aria-hidden="true">
+        <div className="absolute right-0 top-0 bottom-0 w-2/5 pointer-events-none overflow-hidden hidden sm:block" aria-hidden="true">
           <div
-            className="absolute right-4 top-6 w-16 h-16 rounded-full opacity-40"
-            style={{ background: 'var(--rating-bg)' }}
+            className="absolute right-6 top-8 w-28 h-28 rounded-3xl opacity-20 rotate-12"
+            style={{ background: 'var(--accent-gradient)' }}
           />
           <div
-            className="absolute right-10 top-20 w-8 h-24 rounded-full opacity-30"
-            style={{ background: 'var(--accent-soft)' }}
-          />
-          <div
-            className="absolute right-2 bottom-8 w-20 h-20 rounded-2xl opacity-25 rotate-12"
-            style={{ background: 'var(--rating-bg)' }}
+            className="absolute right-16 bottom-10 w-20 h-20 rounded-full opacity-15"
+            style={{ background: 'var(--accent)' }}
           />
         </div>
       </section>
@@ -160,7 +157,7 @@ export default function DashboardPage() {
       {loading && (
         <div className="space-y-4">
           {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="skeleton" style={{ height: 320 }} />
+            <div key={i} className="skeleton" style={{ height: 160 }} />
           ))}
         </div>
       )}
@@ -177,31 +174,35 @@ export default function DashboardPage() {
 
       {response && !loading && (
         <section className="space-y-4">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-lg font-bold">
-                {response.recommendations.length} recommendations
-              </h2>
-              <span className="tag-ai">
-                {response.usedFallback ? 'Ranked' : 'AI-matched'}
-              </span>
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <h2 className="text-xl font-bold">Top AI Recommendations</h2>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                {response.recommendations.length} results ·{' '}
+                <span className="tag-ai">{response.usedFallback ? 'Ranked' : 'AI-matched'}</span>
+              </p>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
+              {lastPayload && (
+                <button
+                  type="button"
+                  onClick={() => handleSubmit(lastPayload)}
+                  className="btn btn-ghost text-sm py-2"
+                  aria-label="Regenerate recommendations"
+                >
+                  <RefreshCw className="w-4 h-4" /> Regenerate
+                </button>
+              )}
               <div
                 role="tablist"
                 aria-label="View mode"
-                className="hidden sm:inline-flex rounded-xl border p-0.5"
-                style={{ borderColor: 'var(--border)' }}
+                className="segmented"
               >
                 <button
                   role="tab"
                   aria-selected={view === 'list'}
-                  className="px-2.5 py-1.5 rounded-lg text-sm transition-colors"
-                  style={
-                    view === 'list'
-                      ? { background: 'var(--accent-muted)', color: 'var(--accent)' }
-                      : { color: 'var(--text-secondary)' }
-                  }
+                  type="button"
+                  className={view === 'list' ? 'active' : ''}
                   onClick={() => setView('list')}
                 >
                   <List className="w-4 h-4 inline" /> List
@@ -209,34 +210,22 @@ export default function DashboardPage() {
                 <button
                   role="tab"
                   aria-selected={view === 'map'}
-                  className="px-2.5 py-1.5 rounded-lg text-sm transition-colors"
-                  style={
-                    view === 'map'
-                      ? { background: 'var(--accent-muted)', color: 'var(--accent)' }
-                      : { color: 'var(--text-secondary)' }
-                  }
+                  type="button"
+                  className={view === 'map' ? 'active' : ''}
                   onClick={() => setView('map')}
                 >
                   <MapIcon className="w-4 h-4 inline" /> Map
                 </button>
               </div>
-              <button
-                type="button"
-                className="p-2 rounded-lg border"
-                style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
-                aria-label="Filter options"
-              >
-                <SlidersHorizontal className="w-4 h-4" aria-hidden="true" />
-              </button>
             </div>
           </div>
 
           {response.summary && (
-            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{response.summary}</p>
+            <p className="text-sm card p-4" style={{ color: 'var(--text-secondary)' }}>{response.summary}</p>
           )}
 
           {view === 'list' ? (
-            <div className="space-y-4 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
+            <div className="space-y-4">
               {response.recommendations.map((item) => (
                 <RecommendationCard
                   key={item.restaurantId}
@@ -253,15 +242,19 @@ export default function DashboardPage() {
               recommendations={response.recommendations}
             />
           )}
+
+          <p className="text-xs text-center pt-2" style={{ color: 'var(--text-muted)' }}>
+            Recommendations are AI-generated based on your preferences.
+          </p>
         </section>
       )}
 
       {!loading && !response && !error && (
-        <div className="card p-8 text-center">
-          <Sparkles className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--accent)' }} aria-hidden="true" />
+        <div className="card p-10 text-center">
+          <Sparkles className="w-12 h-12 mx-auto mb-4" style={{ color: 'var(--accent)' }} aria-hidden="true" />
           <h2 className="text-lg font-bold">Ready when you are</h2>
-          <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-            Fill in your preferences above and we&apos;ll do the rest.
+          <p className="text-sm mt-2 max-w-sm mx-auto" style={{ color: 'var(--text-secondary)' }}>
+            Set your preferences above and tap Find Restaurants to get personalized picks.
           </p>
         </div>
       )}

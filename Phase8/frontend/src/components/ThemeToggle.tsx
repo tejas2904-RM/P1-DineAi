@@ -9,7 +9,12 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border)]/50 transition-colors"
+      className="flex items-center justify-center w-9 h-9 rounded-xl border transition-colors"
+      style={{
+        borderColor: 'var(--border)',
+        color: 'var(--text-secondary)',
+        background: 'var(--bg-elevated)',
+      }}
       aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
       title={theme === 'light' ? 'Dark mode' : 'Light mode'}
     >

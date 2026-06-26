@@ -2,18 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutGrid, Clock, Heart } from 'lucide-react';
-import { useTheme } from '@/lib/theme-provider';
-import { Palette } from 'lucide-react';
+import { Home, Clock, Heart } from 'lucide-react';
 
 export function MobileTabBar() {
   const pathname = usePathname();
-  const { toggleTheme } = useTheme();
 
   const links = [
-    { href: '/', label: 'Dashboard', icon: LayoutGrid },
+    { href: '/', label: 'Home', icon: Home },
     { href: '/history', label: 'History', icon: Clock },
-    { href: '/favorites', label: 'Favorites', icon: Heart },
+    { href: '/favorites', label: 'Saved', icon: Heart },
   ];
 
   return (
@@ -39,14 +36,6 @@ export function MobileTabBar() {
             </Link>
           );
         })}
-        <button
-          onClick={toggleTheme}
-          aria-label="Toggle theme"
-          title="Theme"
-        >
-          <Palette className="w-5 h-5" aria-hidden="true" />
-          <span>Theme</span>
-        </button>
       </nav>
     </>
   );

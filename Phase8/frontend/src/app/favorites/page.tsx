@@ -43,7 +43,7 @@ export default function FavoritesPage() {
       <header>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Heart className="w-6 h-6" style={{ color: 'var(--accent)' }} aria-hidden="true" />
-          Your favorites
+          Saved Restaurants
         </h1>
         <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
           Restaurants you&apos;ve saved for later.
