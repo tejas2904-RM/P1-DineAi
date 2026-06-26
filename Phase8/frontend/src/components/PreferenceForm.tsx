@@ -23,7 +23,6 @@ export function PreferenceForm({ onSubmit, loading, initialValues }: PreferenceF
   const [budget, setBudget] = useState(initialValues?.budget || 'medium');
   const [cuisine, setCuisine] = useState(initialValues?.cuisine || '');
   const [minRating, setMinRating] = useState(initialValues?.minRating?.toString() || '4.0');
-  const [topK, setTopK] = useState(initialValues?.topK?.toString() || '5');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [locations, setLocations] = useState<string[]>([]);
   const [locLoading, setLocLoading] = useState(true);
@@ -67,7 +66,7 @@ export function PreferenceForm({ onSubmit, loading, initialValues }: PreferenceF
       budget,
       cuisine: cuisine.trim(),
       minRating: parseFloat(minRating),
-      topK: parseInt(topK, 10) || 5,
+      topK: initialValues?.topK ?? 5,
     });
   }
 
@@ -149,19 +148,6 @@ export function PreferenceForm({ onSubmit, loading, initialValues }: PreferenceF
             />
             {errors.minRating && <p className="text-xs text-red-500 mt-1">{errors.minRating}</p>}
           </div>
-        </div>
-
-        <div>
-          <label htmlFor="topK" className="label">Top K</label>
-          <input
-            id="topK"
-            type="number"
-            min="1"
-            max="20"
-            value={topK}
-            onChange={(e) => setTopK(e.target.value)}
-            className="input"
-          />
         </div>
       </div>
 
