@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "src/app/api/v1/[...path]/route.ts": {
+      "maxDuration": 60
+    }
+  },
   "headers": [
     {
       "source": "/sw.js",

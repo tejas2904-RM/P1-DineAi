@@ -91,6 +91,7 @@ app = FastAPI(title="Phase 8 - Personalization API", version="8.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins(),
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],

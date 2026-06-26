@@ -9,6 +9,7 @@ import {
   getRecommendations,
   getUserProfile,
   updateUserProfile,
+  warmupBackend,
   type PreferencePayload,
   type RecommendationResponse,
   type UserProfile,
@@ -36,6 +37,7 @@ export default function DashboardPage() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
+    warmupBackend();
     getUserProfile()
       .then((p) => {
         setProfile(p);

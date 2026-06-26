@@ -1,5 +1,11 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || '/api/v1';
 const USER_ID_KEY = 'phase8-user-id';
+const REQUEST_TIMEOUT_MS = 90_000;
+const RETRYABLE_STATUSES = new Set([502, 503, 504]);
+const MAX_RETRIES = 2;
+const RETRY_DELAY_MS = 3_000;
+
+let warmupPromise: Promise<void> | null = null;
 
 export interface PreferencePayload {
   location: string;
@@ -80,17 +86,82 @@ function authHeaders(): Record<string, string> {
   };
 }
 
-async function jsonFetch<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, { ...init, headers: { ...authHeaders(), ...(init?.headers || {}) } });
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(`${res.status}: ${text || res.statusText}`);
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function friendlyError(status: number, body: string): string {
+  if (status === 502 || status === 503 || status === 504) {
+    return 'The recommendation service is waking up or temporarily unavailable. Please wait a moment and try again.';
   }
-  return (await res.json()) as T;
+  if (status === 401 || status === 403) {
+    return 'API authorization failed. Check that the backend API key is configured correctly.';
+  }
+  return `${status}: ${body || 'Request failed'}`;
+}
+
+async function fetchWithTimeout(url: string, init?: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    return await fetch(url, {
+      ...init,
+      signal: controller.signal,
+      headers: { ...authHeaders(), ...(init?.headers || {}) },
+    });
+  } catch (err) {
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw new Error(
+        'The request timed out while waiting for recommendations. The backend may be waking up — please try again.',
+      );
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function jsonFetch<T>(url: string, init?: RequestInit): Promise<T> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
+    try {
+      const res = await fetchWithTimeout(url, init);
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        if (RETRYABLE_STATUSES.has(res.status) && attempt < MAX_RETRIES) {
+          await sleep(RETRY_DELAY_MS * (attempt + 1));
+          continue;
+        }
+        throw new Error(friendlyError(res.status, text));
+      }
+      return (await res.json()) as T;
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error('Request failed');
+      if (attempt < MAX_RETRIES) {
+        await sleep(RETRY_DELAY_MS * (attempt + 1));
+        continue;
+      }
+    }
+  }
+
+  throw lastError ?? new Error('Request failed');
+}
+
+/** Wake Render backends before the first recommendation search. */
+export function warmupBackend(): Promise<void> {
+  if (typeof window === 'undefined') return Promise.resolve();
+  if (!warmupPromise) {
+    warmupPromise = fetchWithTimeout(`${API_BASE}/health`)
+      .then(() => undefined)
+      .catch(() => undefined);
+  }
+  return warmupPromise;
 }
 
 // Recommendations ---------------------------------------------------------
 export async function getRecommendations(payload: PreferencePayload): Promise<RecommendationResponse> {
+  await warmupBackend();
   return jsonFetch<RecommendationResponse>(`${API_BASE}/recommendations`, {
     method: 'POST',
     body: JSON.stringify({ ...payload, userId: payload.userId || getUserId() }),

@@ -53,6 +53,8 @@ const nextConfig = {
     ];
   },
   async rewrites() {
+    // Runtime proxying is handled by src/app/api/v1/[...path]/route.ts so
+    // BACKEND_API_BASE is read at request time, not only at build time.
     const backendBase = process.env.BACKEND_API_BASE || 'http://localhost:8002';
     return [
       {

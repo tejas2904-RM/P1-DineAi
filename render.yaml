@@ -30,7 +30,7 @@ services:
       - key: PHASE7_API_KEYS
         sync: false
       - key: CORS_ORIGINS
-        value: http://localhost:8082,http://localhost:3000
+        value: http://localhost:8082,http://localhost:3000,https://p1-dine-ai.vercel.app,https://p1-dine-ai-5n8s.vercel.app
 
   # -------------------------------------------------------------------------
   # Phase 8 — Personalization API (profiles, history, favorites)
@@ -58,4 +58,4 @@ services:
       - key: PHASE8_DATASET
         value: /opt/render/project/src/Phase1/outputs/restaurants_clean.csv
       - key: CORS_ORIGINS
-        value: http://localhost:8082,http://localhost:3000
+        value: http://localhost:8082,http://localhost:3000,https://p1-dine-ai.vercel.app,https://p1-dine-ai-5n8s.vercel.app
