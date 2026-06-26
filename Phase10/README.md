@@ -34,10 +34,12 @@ Make sure all changes in `Phase8/frontend` (including `vercel.json` and `next.co
    | Setting | Value | Description |
    | :--- | :--- | :--- |
    | **Framework Preset** | Next.js | Automatically detected by Vercel |
-   | **Root Directory** | `Phase8/frontend` | Crucial! Points Vercel to the Next.js subfolder |
+   | **Root Directory** | `Phase8/frontend` | Recommended — points Vercel at the Next.js app |
    | **Build Command** | `npm run build` | Default compilation command |
    | **Output Directory** | `.next` | Default App Router compile target |
    | **Node.js Version** | `18.x` or `20.x` | Modern runtime requirements |
+
+   > **Monorepo note:** If the project root is left at the repository root (`.`), the root [`vercel.json`](../vercel.json) tells Vercel to build `Phase8/frontend` via `@vercel/next`. Without that file—or without setting **Root Directory** to `Phase8/frontend`—deployments finish in a few seconds and every route returns `404: NOT_FOUND`.
 
 ## Step 3: Configure Environment Variables
 
