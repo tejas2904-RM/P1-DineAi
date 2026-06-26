@@ -2,7 +2,7 @@
 
 import { useEffect, useState, FormEvent } from 'react';
 import type { PreferencePayload } from '@/lib/api';
-import { getCuisines, getLocations } from '@/lib/api';
+import { getLocations } from '@/lib/api';
 import { Search, Loader2, MapPin, UtensilsCrossed } from 'lucide-react';
 
 interface PreferenceFormProps {
@@ -28,9 +28,6 @@ export function PreferenceForm({ onSubmit, loading, initialValues }: PreferenceF
   const [locations, setLocations] = useState<string[]>([]);
   const [locLoading, setLocLoading] = useState(true);
   const [locError, setLocError] = useState<string | null>(null);
-  const [cuisines, setCuisines] = useState<string[]>([]);
-  const [cuisineLoading, setCuisineLoading] = useState(true);
-  const [cuisineError, setCuisineError] = useState<string | null>(null);
 
   function loadLocations() {
     setLocLoading(true);
@@ -44,30 +41,13 @@ export function PreferenceForm({ onSubmit, loading, initialValues }: PreferenceF
       .finally(() => setLocLoading(false));
   }
 
-  function loadCuisines() {
-    setCuisineLoading(true);
-    setCuisineError(null);
-    getCuisines()
-      .then((items) => setCuisines(Array.isArray(items) ? items : []))
-      .catch((e) => {
-        setCuisineError(e?.message || 'Failed to load cuisines');
-        setCuisines([]);
-      })
-      .finally(() => setCuisineLoading(false));
-  }
-
   useEffect(() => {
     loadLocations();
-    loadCuisines();
   }, []);
 
   useEffect(() => {
     if (!location && locations.length > 0) setLocation(locations[0]);
   }, [locations, location]);
-
-  useEffect(() => {
-    if (!cuisine && cuisines.length > 0) setCuisine(cuisines[0]);
-  }, [cuisines, cuisine]);
 
   function validate(): boolean {
     const next: Record<string, string> = {};
@@ -133,32 +113,16 @@ export function PreferenceForm({ onSubmit, loading, initialValues }: PreferenceF
           <label htmlFor="cuisine" className="label">Cuisine</label>
           <div className="input-icon-wrap">
             <UtensilsCrossed className="input-icon w-4 h-4" aria-hidden="true" />
-            <select
+            <input
               id="cuisine"
+              type="text"
               value={cuisine}
               onChange={(e) => setCuisine(e.target.value)}
-              disabled={cuisineLoading}
+              placeholder="e.g. north indian"
+              className="input"
               aria-invalid={!!errors.cuisine}
-            >
-              <option value="" disabled>
-                {cuisineLoading ? 'Loading…' : cuisines.length === 0 ? 'No cuisines' : 'Select cuisine'}
-              </option>
-              {cuisines.map((item) => (
-                <option key={item} value={item}>{toTitle(item)}</option>
-              ))}
-              {cuisine && !cuisines.includes(cuisine) && !cuisineLoading && (
-                <option value={cuisine}>{toTitle(cuisine)}</option>
-              )}
-            </select>
+            />
           </div>
-          {cuisineError && (
-            <p className="text-xs mt-1" style={{ color: 'var(--danger)' }}>
-              {cuisineError}{' '}
-              <button type="button" onClick={loadCuisines} className="underline" style={{ color: 'var(--accent)' }}>
-                Retry
-              </button>
-            </p>
-          )}
           {errors.cuisine && <p className="text-xs text-red-500 mt-1">{errors.cuisine}</p>}
         </div>
 
